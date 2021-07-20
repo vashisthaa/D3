@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>D3 Page Template</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/colorbrewer.v1.min.js"></script>
+    <style>
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+
+        path.line {
+            fill: none;
+            stroke: red;
+            stroke-width: 3px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    //Width and height
+    var w = 1600;
+    var h = 1600;
+    var padding = 40;
+
+    var dataset, xScale, yScale, xAxis, yAxis, line;  //Empty, for now
+    var rowConverter = function(d) {
+        return {
+            //Make a new Date object for each year + month
+            Year: d.Year,
+            //Convert from string to float
+            Country: d.Country,
+            Fertility: parseFloat(d.Adolescent_Fertility)
+        };
+    }
+
+    d3.csv("data/WDI_Adolescent_Fertility_cleaned.csv", rowConverter, function(data) {
+        var dataset = data;
+
+        //Print data to console as table, for verification
+        //console.table(dataset, ["Year", "Country", "Fertility"]);
+
+        xScale = d3.scaleLinear()
+            .domain([
+                d3.min(dataset, function(d) { return d.Year; }),
+                d3.max(dataset, function(d) { return d.Year; })
+            ])
+            .range([padding, w]);
+
+        yScale = d3.scaleLinear()
+            .domain([0, d3.max(dataset, function(d) { return d.Fertility; })])
+            .range([h-padding, 0]);
+
+
+
+        //Define axes
+        xAxis = d3.axisBottom()
+            .scale(xScale)
+
+        //Define Y axis
+        yAxis = d3.axisLeft()
+            .scale(yScale)
+
+
+        var line = d3.line()
+            .x(function(d) { return xScale(d.Year); })
+            .y(function(d) { return yScale(d.Fertility); });
+
+        //Create SVG element
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+
+        //Create line
+        svg.append("path")
+            .datum(dataset)
+            .filter(function(d) { return d.Country == "World" })
+            .attr("class", "line")
+            .attr("d", line)
+            .attr("stroke", d => color(d.Country));
+
+        //Create axes
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(0," + (h - padding) + ")")
+            .call(xAxis);
+
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + padding + ",0)")
+            .call(yAxis);
+    })
+
+
+
+</script>
+</body>
+</html>
