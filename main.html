@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>D3 Page Template</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <style>
+        h2 {
+            border: 2px solid black;
+            outline: lightblue solid 5px;
+            margin: auto;
+            background: lightblue;
+            padding: 2px;
+            text-align: center;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        text {
+            font-family: arial;
+            font-size: 12px;
+        }
+
+
+        path.line {
+            fill: none;
+            stroke: red;
+            stroke-width: 1px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: slategray;
+            shape-rendering: crispEdges;
+        }
+        .myDiv {
+            border: 5px outset red;
+            background-color: lightblue;
+            text-align: center;
+        }
+        .menu {
+            float: right;
+            width: 20%;
+            text-align: center;
+        }
+
+        .menu a {
+            background-color: #e5e5e5;
+            padding: 8px;
+            margin-top: 7px;
+            display: block;
+            width: 100%;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Scene1</h2>
+
+<div class="myDiv">
+    <h1>Correlation - Poor countries and Adolescent Fertility Rate </h1>
+    <p id="details">World is improving on the fertility rate but long way to go.</p>
+</div>
+
+<div class="menu">
+    <a href="#">Link 1</a>
+    <a href="#">Link 2</a>
+    <a href="#">Link 3</a>
+    <a href="#">Link 4</a>
+</div>
+<script type="text/javascript">
+
+    //Width and height
+    var w = 1600;
+    var h = 1600;
+    var padding = 40;
+
+    var dataset, xScale, yScale, xAxis, yAxis, line;  //Empty, for now
+    var rowConverter = function(d) {
+        return {
+            //Make a new Date object for each year + month
+            Year: parseInt(d.Year),
+            //Convert from string to float
+            Country: d.Country_Name,
+            Country_Code: d.Country_Code,
+            Fertility: parseFloat(d.Adolescent_Fertility)
+        };
+    }
+
+    d3.csv("data/WDI_Adolescent_Fertility_cleaned.csv", rowConverter, function(data) {
+        var dataset = data;
+
+        //Print data to console as table, for verification
+        //console.table(dataset, []);
+        var allGroup = d3.map(dataset, function(d){return(d.Country_Code)}).keys();
+        var color = d3.schemeCategory20;
+        alert(color);
+        const CountryColorMap = new Map();
+        var counter = 0;
+        for(const country in allGroup){
+            CountryColorMap.set(allGroup[country], color[country%20]);
+            counter++;
+        }
+    console.log(CountryColorMap);
+        alert(CountryColorMap.get('ZWE'));
+        document.getElementById("details").innerText = allGroup;
+
+        var maxX = d3.max(dataset, function(d) { return d.Year; }) + 10;
+
+        xScale = d3.scaleLinear()
+            .domain([
+                d3.min(dataset, function(d) { return d.Year; }),
+                maxX
+            ])
+            .range([padding, w]);
+
+
+
+        var maxY = d3.max(dataset, function(d) { return d.Fertility; }) + 10;
+        yScale = d3.scaleLinear()
+            .domain([0, maxY])
+            .range([h-padding, 0]);
+
+
+        var color =
+        //Define axes
+        xAxis = d3.axisBottom()
+            .scale(xScale)
+
+        //Define Y axis
+        yAxis = d3.axisLeft()
+            .scale(yScale)
+
+
+
+        //Create SVG element
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+
+
+
+
+
+        //Create axes
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(0," + (h - padding) + ")")
+            .call(xAxis);
+
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + padding + ",0)")
+            .call(yAxis);
+    })
+
+
+
+</script>
+</body>
+</html>

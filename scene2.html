@@ -32,10 +32,18 @@
             stroke: slategray;
             shape-rendering: crispEdges;
         }
+        .myDiv {
+            border: 5px outset red;
+            background-color: lightblue;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-
+<div class="myDiv">
+    <h2>Correlation - Poor countries and Adolescent Fertility Rate </h2>
+    <p>World has recovered</p>
+</div>
 <script type="text/javascript">
 
     //Width and height
@@ -58,7 +66,7 @@
         var dataset = data;
 
         //Print data to console as table, for verification
-        //console.table(dataset, ["Year", "Country", "Fertility"]);
+        console.table(dataset, ["Year", "Country", "Fertility"]);
 
         xScale = d3.scaleLinear()
             .domain([
@@ -72,7 +80,7 @@
             .range([h-padding, 0]);
 
 
-
+        var color =
         //Define axes
         xAxis = d3.axisBottom()
             .scale(xScale)
@@ -95,7 +103,6 @@
         //Create line
         svg.append("path")
             .datum(dataset)
-            .filter(function(d) { return d.Country == "World" })
             .attr("class", "line")
             .attr("d", line)
             .attr("stroke", d => color(d.Country));
